@@ -14,11 +14,9 @@ public class HighScoreManager : MonoBehaviour
     public TextMeshProUGUI textScore2;
     public TextMeshProUGUI textScore3;
 
-    public HighScoreList listScores;
-
     void Start()
     {
-            LoadHighScore();
+        LoadHighScore();
     }
 
     // Update is called once per frame
@@ -99,6 +97,7 @@ public class HighScoreManager : MonoBehaviour
             }
         }
 
+
     }
 
 
@@ -108,15 +107,11 @@ public class HighScoreManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            listScores = JsonUtility.FromJson<HighScoreList>(json);
-            listScores.FromVarsToObject();
-            textScore1.SetText(listScores.score1 + " --- " + listScores.username1);
-            textScore2.SetText(listScores.score2 + " --- " + listScores.username2);
-            textScore3.SetText(listScores.score3 + " --- " + listScores.username3);
-        }
-        else
-        {
-            Debug.Log("File does not exist");
+            HighScoreList newListScores = JsonUtility.FromJson<HighScoreList>(json);
+            newListScores.FromVarsToObject();
+            textScore1.SetText(newListScores.score1 + " - " + newListScores.username1);
+            textScore2.SetText(newListScores.score2 + " - " + newListScores.username2);
+            textScore3.SetText(newListScores.score3 + " - " + newListScores.username3);
         }
     }
 

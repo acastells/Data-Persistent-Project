@@ -38,7 +38,7 @@ public class MainManager : MonoBehaviour
             }
         }
 
-        LoadHighScore();
+        GetHighestScore();
         if (StartMenuManager.Instance)
         {
             ScoreText.text = $"{StartMenuManager.Instance.username}'s score : {m_Points}";
@@ -79,17 +79,9 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
-        GameOverText.SetActive(true);        
+        GameOverText.SetActive(true);
         SaveHighScore();
-        LoadHighScore();
         SceneManager.LoadScene("HighScore");
-    }
-
-    [System.Serializable]
-    public class HighScore
-    {
-        public string username;
-        public int score;
     }
 
     public void SaveHighScore()
@@ -101,19 +93,11 @@ public class MainManager : MonoBehaviour
         File.WriteAllText(Application.persistentDataPath + "/highscore.json", json);
     }
 
-    public void LoadHighScore()
+    public void GetHighestScore()
     {
-        string path = Application.persistentDataPath + "/highscore.json";
+        HighScoreList score = new HighScoreList();
+        score.LoadFromJson();
         Text BestscoreText = GameObject.Find("BestScoreText").GetComponent<Text>();
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            HighScoreList data = JsonUtility.FromJson<HighScoreList>(json);
-            if (data != null)
-            {
-                data.FromVarsToObject();
-                BestscoreText.text = $"Best Score : {data.username1} : {data.score1}";
-            }            
-        }
+        BestscoreText.text = $"Best Score : {score.username1} : {score.score1}";
     }
 }
