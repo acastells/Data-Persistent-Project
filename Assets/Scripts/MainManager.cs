@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static HighScoreManager;
 
 public class MainManager : MonoBehaviour
 {
@@ -19,14 +20,9 @@ public class MainManager : MonoBehaviour
 
     private bool m_GameOver = false;
 
-    private HighScore HighScoreHistory;
-
     // Start is called before the first frame update
     void Start()
     {
-
-        Debug.Log(Application.persistentDataPath);
-
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
 
@@ -83,19 +79,10 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
-        GameOverText.SetActive(true);
-
-        if (HighScoreHistory == null)
-        {
-            SaveHighScore();
-            LoadHighScore();
-        }
-        else if (HighScoreHistory != null && HighScoreHistory.score < m_Points)
-        {
-            SaveHighScore();
-            LoadHighScore();
-        }
-
+        GameOverText.SetActive(true);        
+        SaveHighScore();
+        LoadHighScore();
+        SceneManager.LoadScene("HighScore");
     }
 
     [System.Serializable]
@@ -107,10 +94,10 @@ public class MainManager : MonoBehaviour
 
     public void SaveHighScore()
     {
-        HighScore data = new HighScore();
-        data.username = StartMenuManager.Instance.username;
-        data.score = m_Points;
-        string json = JsonUtility.ToJson(data);
+        HighScoreList score = new HighScoreList();
+        score.LoadFromJson();
+        score.AddNewScore(m_Points, StartMenuManager.Instance.username);
+        string json = JsonUtility.ToJson(score);
         File.WriteAllText(Application.persistentDataPath + "/highscore.json", json);
     }
 
@@ -121,13 +108,12 @@ public class MainManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            HighScore data = JsonUtility.FromJson<HighScore>(json);
-            BestscoreText.text = $"Best Score : {data.username} : {data.score}";
-            HighScoreHistory = data;
-        }
-        else
-        {
-            BestscoreText.text = $"No high score registered yet";
+            HighScoreList data = JsonUtility.FromJson<HighScoreList>(json);
+            if (data != null)
+            {
+                data.FromVarsToObject();
+                BestscoreText.text = $"Best Score : {data.username1} : {data.score1}";
+            }            
         }
     }
 }
